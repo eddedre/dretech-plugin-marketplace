@@ -1,0 +1,18 @@
+{
+  "name": "dretech-django",
+  "version": "2.0.0",
+  "description": "Claude Code plugin for HackSoft Django Styleguide enforcement. 10 skills for generating services, selectors, APIs, views, tests, and linting setup. Pre-tool hook validates code against the rule catalog in .claude/RULE_CATALOG.json. Auditor agent for deep code analysis.",
+  "author": {
+    "name": "EddeDre"
+  },
+  "license": "MIT",
+  "keywords": [
+    "django",
+    "python",
+    "hacksoft",
+    "styleguide",
+    "drf",
+    "services",
+    "selectors"
+  ]
+}

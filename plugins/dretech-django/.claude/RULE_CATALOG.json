@@ -1,0 +1,427 @@
+{
+  "version": "1.1.0",
+  "description": "Machine-checkable source of truth for every dretech-django enforcement rule. IDs here MUST match .claude/ENFORCEMENT_RULES.md headings and every rule_id emitted by hooks/pre-styleguide-check.js, hooks/ast_check.py, and agents/styleguide-auditor.md. Deterministic rules carry covered_by (real test files that contain the ID string); non-deterministic rules carry covered_by_gated (intended gated e2e paths).",
+  "rules": [
+    {
+      "id": "SVC-001",
+      "title": "Services Must Use Keyword-Only Arguments",
+      "severity": "CRITICAL",
+      "layer": "services",
+      "applicability": ["service"],
+      "implementation": "hook-ast",
+      "doc_anchor": "#svc-001-services-must-use-keyword-only-arguments",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/test_ast_check.py",
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js",
+        "testing/dretech-django/hooks/__tests__/reconstruction.integration.test.js"
+      ]
+    },
+    {
+      "id": "SVC-002",
+      "title": "Services Must Call full_clean() Before save()",
+      "severity": "CRITICAL",
+      "layer": "services",
+      "applicability": ["service"],
+      "implementation": "hook-ast",
+      "doc_anchor": "#svc-002-services-must-call-full_clean-before-save",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/test_ast_check.py",
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js",
+        "testing/dretech-django/hooks/__tests__/reconstruction.integration.test.js"
+      ]
+    },
+    {
+      "id": "SVC-003",
+      "title": "Use save(update_fields=[...]) for Updates",
+      "severity": "IMPORTANT",
+      "layer": "services",
+      "applicability": ["service"],
+      "implementation": "hook-js",
+      "doc_anchor": "#svc-003-use-saveupdate_fields-for-updates",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SVC-004",
+      "title": "Async Task Dispatch Must Use transaction.on_commit()",
+      "severity": "CRITICAL",
+      "layer": "services",
+      "applicability": ["service"],
+      "implementation": "hook-js",
+      "doc_anchor": "#svc-004-async-task-dispatch-must-use-transactionon_commit",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "VIEW-001",
+      "title": "Views and APIs Must Not Contain Business Logic",
+      "severity": "CRITICAL",
+      "layer": "views",
+      "applicability": ["view", "api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#view-001-views-and-apis-must-not-contain-business-logic",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "VIEW-002",
+      "title": "Views and APIs Must Not Dispatch Tasks Directly",
+      "severity": "CRITICAL",
+      "layer": "views",
+      "applicability": ["view", "api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#view-002-views-and-apis-must-not-dispatch-tasks-directly",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "API-001",
+      "title": "Use APIView Instead of ViewSets (HackSoft Pattern)",
+      "severity": "IMPORTANT",
+      "layer": "apis",
+      "applicability": ["api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#api-001-use-apiview-instead-of-viewsets-hacksoft-pattern",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "API-002",
+      "title": "API Files Must Use DRF, Not Plain Django Views",
+      "severity": "CRITICAL",
+      "layer": "apis",
+      "applicability": ["api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#api-002-api-files-must-use-drf-not-plain-django-views",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "API-003",
+      "title": "APIs Must Import DRF APIView",
+      "severity": "CRITICAL",
+      "layer": "apis",
+      "applicability": ["api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#api-003-apis-must-import-drf-apiview",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "API-004",
+      "title": "APIs Should Use DRF Response",
+      "severity": "IMPORTANT",
+      "layer": "apis",
+      "applicability": ["api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#api-004-apis-should-use-drf-response",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "API-005",
+      "title": "APIs Should Use Nested InputSerializer",
+      "severity": "IMPORTANT",
+      "layer": "apis",
+      "applicability": ["api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#api-005-apis-should-use-nested-inputserializer",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "API-006",
+      "title": "APIs Should Use Nested OutputSerializer",
+      "severity": "IMPORTANT",
+      "layer": "apis",
+      "applicability": ["api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#api-006-apis-should-use-nested-outputserializer",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SEL-001",
+      "title": "Selectors Should Optimize Queries",
+      "severity": "IMPORTANT",
+      "layer": "selectors",
+      "applicability": ["selector"],
+      "implementation": "hook-js",
+      "doc_anchor": "#sel-001-selectors-should-optimize-queries",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SEL-002",
+      "title": "Selectors Must Be Pure Reads — No Write Operations",
+      "severity": "CRITICAL",
+      "layer": "selectors",
+      "applicability": ["selector"],
+      "implementation": "hook-js",
+      "doc_anchor": "#sel-002-selectors-must-be-pure-reads--no-write-operations",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "QUAL-001",
+      "title": "Services and Selectors Should Use from __future__ import annotations",
+      "severity": "IMPORTANT",
+      "layer": "quality",
+      "applicability": ["service", "selector"],
+      "implementation": "hook-js",
+      "doc_anchor": "#qual-001-services-and-selectors-should-use-from-__future__-import-annotations",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js",
+        "testing/dretech-django/hooks/__tests__/test-presence.integration.test.js"
+      ]
+    },
+    {
+      "id": "QUAL-002",
+      "title": "Services and Selectors Must Have Type Annotations",
+      "severity": "IMPORTANT",
+      "layer": "quality",
+      "applicability": ["service", "selector"],
+      "implementation": "hook-js",
+      "doc_anchor": "#qual-002-services-and-selectors-must-have-type-annotations",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "TASK-001",
+      "title": "Celery Tasks Must Not Contain Business Logic",
+      "severity": "CRITICAL",
+      "layer": "tasks",
+      "applicability": ["task"],
+      "implementation": "hook-js",
+      "doc_anchor": "#task-001-celery-tasks-must-not-contain-business-logic",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SET-001",
+      "title": "Global Settings Should Not Contain App-Specific Secrets",
+      "severity": "IMPORTANT",
+      "layer": "settings",
+      "applicability": ["global-settings"],
+      "implementation": "hook-js",
+      "doc_anchor": "#set-001-global-settings-should-not-contain-app-specific-secrets",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SET-002",
+      "title": "Use Per-App Settings, Not django.conf.settings",
+      "severity": "IMPORTANT",
+      "layer": "settings",
+      "applicability": ["service", "selector", "view"],
+      "implementation": "hook-js",
+      "doc_anchor": "#set-002-use-per-app-settings-not-djangoconfsettings",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SEC-001",
+      "title": "Never Log Sensitive Data",
+      "severity": "CRITICAL",
+      "layer": "security",
+      "applicability": ["service", "selector", "view", "api", "task"],
+      "implementation": "hook-js",
+      "doc_anchor": "#sec-001-never-log-sensitive-data",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "SEC-002",
+      "title": "Never Expose Raw Exceptions in Responses",
+      "severity": "CRITICAL",
+      "layer": "security",
+      "applicability": ["view", "api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#sec-002-never-expose-raw-exceptions-in-responses",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "IMP-001",
+      "title": "Import Namespace — Use apps.* Prefix",
+      "severity": "IMPORTANT",
+      "layer": "imports",
+      "applicability": ["service", "selector", "view", "api"],
+      "implementation": "hook-js",
+      "doc_anchor": "#imp-001-import-namespace--use-apps-prefix",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/pre-styleguide-check.integration.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-010",
+      "title": "Folder Structure — Canonical App Layout",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["app"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-010-folder-structure--canonical-app-layout",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-011",
+      "title": "Template Namespacing",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["template"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-011-template-namespacing",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-012",
+      "title": "apps.py Must Set Correct Name",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["app"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-012-appspy-must-set-correct-name",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "TEST-001",
+      "title": "New Service/Selector Code Without Tests (Forward Pressure)",
+      "severity": "IMPORTANT",
+      "layer": "tests",
+      "applicability": ["service", "selector"],
+      "implementation": "hook-js",
+      "doc_anchor": "#test-001-new-serviceselector-code-without-tests-forward-pressure",
+      "test_strategy": "deterministic",
+      "covered_by": [
+        "testing/dretech-django/hooks/__tests__/test-presence.integration.test.js"
+      ]
+    },
+    {
+      "id": "TEST-002",
+      "title": "Existing Services/Selectors/Models Lacking Tests (Backlog)",
+      "severity": "IMPORTANT",
+      "layer": "tests",
+      "applicability": ["service", "selector", "model"],
+      "implementation": "auditor",
+      "doc_anchor": "#test-002-existing-servicesselectorsmodels-lacking-tests-backlog",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-001",
+      "title": "Business Logic in Model save()/Managers/Signals",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["model"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-001-business-logic-in-model-savemanagerssignals",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-002",
+      "title": "Model Validation Without Matching DB Constraints",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["model"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-002-model-validation-without-matching-db-constraints",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "SEC-DRF-DEFAULTS",
+      "title": "DRF Settings Missing Default Permission Classes or Throttling",
+      "severity": "IMPORTANT",
+      "layer": "security",
+      "applicability": ["global-settings"],
+      "implementation": "auditor",
+      "doc_anchor": "#sec-drf-defaults-drf-settings-missing-default-permission-classes-or-throttling",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-DJANGO-VERSION",
+      "title": "Django Version Below Latest 6.x (Advisory)",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["project"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-django-version-django-version-below-latest-6x-advisory",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    },
+    {
+      "id": "ARCH-PACKAGE-STARS",
+      "title": "Dependency Below 1,000-Star Adoption Bar (Advisory)",
+      "severity": "IMPORTANT",
+      "layer": "architecture",
+      "applicability": ["project"],
+      "implementation": "auditor",
+      "doc_anchor": "#arch-package-stars-dependency-below-1000-star-adoption-bar-advisory",
+      "test_strategy": "live-auditor",
+      "covered_by_gated": [
+        "testing/dretech-django/skills/__tests__/auditor-e2e.test.js"
+      ]
+    }
+  ]
+}

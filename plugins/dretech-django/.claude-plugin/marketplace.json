@@ -1,0 +1,22 @@
+{
+  "name": "dretech-django-plugin",
+  "owner": {
+    "name": "EddeDre"
+  },
+  "description": "DreTech Django Styleguide plugin marketplace: HackSoft-aligned services/selectors enforcement for Claude Code.",
+  "homepage": "https://github.com/eddedre/dretech-claude-plugin-django",
+  "repository": "https://github.com/eddedre/dretech-claude-plugin-django",
+  "plugins": [
+    {
+      "name": "dretech-django",
+      "source": "./",
+      "description": "Claude Code plugin for HackSoft Django Styleguide enforcement. 10 skills, AST-backed PreToolUse hook, machine-checkable rule catalog, auditor agent, and setup-linting skill.",
+      "version": "2.0.0",
+      "author": {
+        "name": "EddeDre"
+      },
+      "homepage": "https://github.com/eddedre/dretech-claude-plugin-django",
+      "repository": "https://github.com/eddedre/dretech-claude-plugin-django"
+    }
+  ]
+}
