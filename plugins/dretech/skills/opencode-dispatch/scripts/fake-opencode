@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+import fs from "node:fs";
+const mode = process.env.FAKE_OPENCODE_MODE || "ok";
+// argv includes "run" as first arg when called like opencode
+const args = process.argv.slice(2);
+let dir = process.cwd();
+const i = args.indexOf("--dir");
+if (i >= 0 && args[i + 1]) dir = args[i + 1];
+let receivedPrompt = "";
+try { receivedPrompt = fs.readFileSync(0, "utf8"); } catch {}
+const cap = process.env.DRETECH_FAKE_PROMPT_PATH;
+if (cap && receivedPrompt) { fs.writeFileSync(cap, receivedPrompt); }
+const writeContract = (status) => {
+  const p = process.env.DRETECH_WORKER_RESULT_PATH;
+  if (!p) return;
+  fs.writeFileSync(
+    p,
+    JSON.stringify({
+      schemaVersion: 1,
+      jobId: process.env.DRETECH_JOB_ID,
+      runId: process.env.DRETECH_RUN_ID,
+      attempt: 1,
+      baseSha: "a".repeat(40),
+      status,
+      summary: "fake worker",
+      commits: status === "succeeded" ? ["b".repeat(40)] : [],
+      filesChanged: status === "succeeded" ? ["hello.txt"] : [],
+      checks: [],
+      blockers: status === "blocked" ? ["need input"] : [],
+    }),
+  );
+};
+if (mode === "write-contract") {
+  writeContract("succeeded");
+  process.stdout.write("WORKER_DONE\n");
+  process.exit(0);
+}
+if (mode === "write-contract-failed") {
+  writeContract("failed");
+  process.stdout.write("WORKER_FAILED\n");
+  process.exit(0);
+}
+if (mode === "write-contract-blocked") {
+  writeContract("blocked");
+  process.stdout.write("WORKER_BLOCKED\n");
+  process.exit(0);
+}
+if (mode === "write-contract-malformed") {
+  const p = process.env.DRETECH_WORKER_RESULT_PATH;
+  if (p) fs.writeFileSync(p, "{invalid json");
+  process.stdout.write("OK\n");
+  process.exit(0);
+}
+if (mode === "empty") {
+  process.stdout.write("x");
+  process.exit(0);
+}
+if (mode === "fail") {
+  process.stderr.write("fake fail\n");
+  process.exit(1);
+}
+process.stdout.write("OK enough output for non-empty classification\n");
+process.exit(0);

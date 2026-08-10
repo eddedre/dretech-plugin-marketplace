@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "dretech-plugin-marketplace",
+  "description": "DreTech plugins for Claude Code.",
+  "owner": {
+    "name": "EddeDre"
+  },
+  "plugins": [
+    {
+      "name": "dretech",
+      "source": "./plugins/dretech",
+      "description": "Foreground, structured OpenCode dispatch for Claude Code skills.",
+      "version": "0.1.0",
+      "author": {
+        "name": "EddeDre"
+      },
+      "category": "development"
+    }
+  ]
+}
