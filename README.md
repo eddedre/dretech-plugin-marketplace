@@ -1,18 +1,25 @@
-# DreTech plugin marketplace
+# DreTech Plugin Marketplace
 
-Public Claude Code plugin marketplace maintained by DreTech.
+Install plugins from the public marketplace:
 
-## Install
+`/plugin marketplace add eddedre/dretech-plugin-marketplace`
 
-```text
-/plugin marketplace add eddedre/dretech-plugin-marketplace
-/plugin install dretech@dretech-plugin-marketplace
-```
+## dretech
 
-The first plugin provides `/dretech:opencode-dispatch`: a foreground, structured bridge from a Claude Code
-skill to the OpenCode CLI.
+Foreground, structured OpenCode dispatch for Claude Code skills.
 
-## License
+Install with: `/plugin install dretech@dretech-plugin-marketplace`
 
-MIT. See [LICENSE](LICENSE).
-DreTech Claude Code plugin marketplace.
+Examples:
+
+- `/dretech:opencode-dispatch [task]`
+
+## dretech-django
+
+Claude Code plugin for HackSoft Django Styleguide enforcement. 10 skills for generating services, selectors, APIs, views, tests, and linting setup. Pre-tool hook validates code against the rule catalog in .claude/RULE_CATALOG.json. Auditor agent for deep code analysis.
+
+Install with: `/plugin install dretech-django@dretech-plugin-marketplace`
+
+Examples:
+
+- `/dretech-django:audit [target]`
