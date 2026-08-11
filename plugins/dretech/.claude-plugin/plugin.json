@@ -1,6 +1,6 @@
 {
   "name": "dretech",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Foreground, structured OpenCode dispatch for Claude Code skills.",
   "author": {
     "name": "EddeDre"
@@ -9,11 +9,13 @@
   "userConfig": {
     "peerReviewModel": {
       "type": "string",
+      "title": "Peer review model",
       "default": "",
       "description": "Bootstrap OpenCode model for peer review."
     },
     "workerModel": {
       "type": "string",
+      "title": "Worker model",
       "default": "",
       "description": "Bootstrap OpenCode model for workers."
     }
