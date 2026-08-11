@@ -10,7 +10,7 @@
       "name": "dretech",
       "source": "./plugins/dretech",
       "description": "Foreground, structured OpenCode dispatch for Claude Code skills.",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "author": {
         "name": "EddeDre"
       },

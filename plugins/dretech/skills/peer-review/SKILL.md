@@ -7,6 +7,8 @@ description: Run an isolated, raw-only peer review of a local artifact and final
 
 Use `/dretech:peer-review <artifact-path> [--run <id>] [--model <model>] [--opencode-agent <agent>]`.
 
+Before parsing or accepting `--model` or `--opencode-agent`, resolve the role through the role-workflow runtime using `resolveGlobalSettingsPath()` and `resolveRole({ role: "peer-review", settingsPath })`. If explicit flags are supplied, resolve again through the same runtime with those overrides; use the returned `model` and `opencodeAgent` values for dispatch. Never read a project settings file or apply flags directly.
+
 The artifact path must be absolute, point to a regular file, and be read as data. The command must:
 
 1. Resolve the tracked base commit and create a temporary isolated workspace containing that repository state and `input.md`.

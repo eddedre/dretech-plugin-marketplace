@@ -7,6 +7,8 @@ description: Execute a reviewed DreTech plan with a bounded worker and independe
 
 Use this skill only after spec review and plan review have produced bound manifests.
 
+Before parsing or accepting any explicit worker model/profile override, resolve the role through the role-workflow runtime using `resolveGlobalSettingsPath()` and `resolveRole({ role: "worker", settingsPath })`. If overrides are supplied, resolve again through the same runtime with those overrides; use the returned `model` and `opencodeAgent` values for dispatch. Never read a project settings file or apply overrides directly.
+
 1. Run the role-workflow handoff check from the repository root.
 2. Write `latest-worker.json` when dispatch begins and again at terminal completion.
 3. Execute only the exact commands in the plan's `## Verification` section. Each command runs from the repository root with the inherited environment and a five-minute timeout.

@@ -8,6 +8,12 @@ const SCHEMA_VERSION = 1;
 const ROLES = new Set(['peer-review', 'worker']);
 const STATES = ['created', 'spec-reviewed', 'plan-drafted', 'plan-reviewed', 'worker-dispatched', 'verified', 'failed'];
 
+/** Return the single user-level settings location used by every DreTech role. */
+export function resolveGlobalSettingsPath({ homeDir = os.homedir() } = {}) {
+  if (typeof homeDir !== 'string' || !homeDir.trim()) throw new Error('home directory must be a non-empty string');
+  return path.resolve(homeDir, '.claude', 'dretech', 'settings.json');
+}
+
 function validRole(role) {
   if (!ROLES.has(role)) throw new Error(`invalid role: ${role}`);
 }
@@ -57,9 +63,9 @@ function atomicText(file, value) {
   }
 }
 
-export function resolveRole({ role, overrides = {}, settingsPath, bootstrap = {} }) {
+export function resolveRole({ role, overrides = {}, settingsPath, homeDir, bootstrap = {} }) {
   validRole(role);
-  const settings = readSettings(settingsPath);
+  const settings = readSettings(settingsPath ?? resolveGlobalSettingsPath({ homeDir }));
   const configured = settings?.roles?.[role];
   const base = configured ?? bootstrap[role] ?? null;
   if (!base?.model) throw new Error(`configure ${role} with /dretech:settings ${role}`);
@@ -69,15 +75,24 @@ export function resolveRole({ role, overrides = {}, settingsPath, bootstrap = {}
   return { model: overrides.model ?? base.model, opencodeAgent: overrides.opencodeAgent ?? base.opencodeAgent ?? null, source: overrides.model !== undefined ? 'override' : configured ? 'settings' : 'bootstrap' };
 }
 
-export function writeRoleSettings(settingsPath, role, entry, catalog) {
+export function writeRoleSettings(settingsPath, role, entry, catalog, { homeDir } = {}) {
+  // Keep the historical path-first form while allowing callers to omit the path entirely.
+  if (ROLES.has(settingsPath) && role && typeof role === 'object') {
+    ({ homeDir } = catalog ?? {});
+    catalog = entry;
+    entry = role;
+    role = settingsPath;
+    settingsPath = undefined;
+  }
   validRole(role);
   validateEntry(entry);
   if (catalog === undefined) throw new Error('catalog is required before settings write');
   validateCatalogModel(catalog, entry.model);
-  const current = readSettings(settingsPath) ?? { schemaVersion: SCHEMA_VERSION, roles: {} };
+  const effectiveSettingsPath = settingsPath ?? resolveGlobalSettingsPath({ homeDir });
+  const current = readSettings(effectiveSettingsPath) ?? { schemaVersion: SCHEMA_VERSION, roles: {} };
   current.roles[role] = { model: entry.model, ...(entry.opencodeAgent === undefined ? {} : { opencodeAgent: entry.opencodeAgent }) };
-  atomicJson(settingsPath, current);
-  const saved = readSettings(settingsPath);
+  atomicJson(effectiveSettingsPath, current);
+  const saved = readSettings(effectiveSettingsPath);
   if (JSON.stringify(saved?.roles?.[role]) !== JSON.stringify(current.roles[role])) throw new Error('settings write validation failed');
   return saved;
 }
