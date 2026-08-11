@@ -3,6 +3,8 @@ import fs from "node:fs";
 const mode = process.env.FAKE_OPENCODE_MODE || "ok";
 // argv includes "run" as first arg when called like opencode
 const args = process.argv.slice(2);
+if (args[0] === '--version') { process.stdout.write('fake-opencode 1.0\n'); process.exit(0); }
+if (args[0] === 'models') { process.stdout.write(`${process.env.FAKE_OPENCODE_MODEL || 'smoke/model'}\n`); process.exit(0); }
 let dir = process.cwd();
 const i = args.indexOf("--dir");
 if (i >= 0 && args[i + 1]) dir = args[i + 1];

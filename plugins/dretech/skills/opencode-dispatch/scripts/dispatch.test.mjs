@@ -183,6 +183,7 @@ test("integration: worker no contract -> contract_failed", async () => {
     prompt: "work",
     cwd: c,
     role: "worker",
+    executionMode: "headless",
   }], { OPENCODE_BIN: fakeBin }, c);
   const out = JSON.parse(stdout);
   const r0 = out.results[0];
@@ -202,6 +203,7 @@ test("integration: worker write-contract -> completed + latest-worker.json", asy
     prompt: "work",
     cwd: c,
     role: "worker",
+    executionMode: "headless",
     runId: "r123",
   }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract" }, c);
   const out = JSON.parse(stdout);
@@ -217,6 +219,46 @@ test("integration: worker write-contract -> completed + latest-worker.json", asy
   const latest = JSON.parse(readFileSync(path.join(runDir, "latest-worker.json"), "utf8"));
   assert.equal(latest.jobId, r0.jobId);
   assert.ok(latest.finishedAt);
+  assert.equal(latest.state, "completed");
+  assert.equal(latest.status, "ok");
+  cleanup(c);
+});
+
+test("integration: worker failure owns latest-worker terminal record", async () => {
+  const c = tmp();
+  const { stdout } = await runDispatch([{
+    id: "wf",
+    model: "m",
+    prompt: "work",
+    cwd: c,
+    role: "worker",
+    executionMode: "headless",
+    runId: "r-failure",
+    planManifestSha256: "d".repeat(64),
+  }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract-failed" }, c);
+  const result = JSON.parse(stdout).results[0];
+  assert.equal(result.status, "contract_failed");
+  const latest = JSON.parse(readFileSync(path.join(resolveRuntimeRoot(c), "runs", "r-failure", "latest-worker.json"), "utf8"));
+  assert.equal(latest.jobId, result.jobId);
+  assert.equal(latest.state, "failed");
+  assert.equal(latest.planManifestSha256, "d".repeat(64));
+  assert.ok(latest.startedAt);
+  assert.ok(latest.finishedAt);
+  cleanup(c);
+});
+
+test("integration: worker launcher mode fails closed and interactive uses steward", async () => {
+  const c = tmp();
+  const omitted = await runDispatch([{ id: "omitted-mode", model: "m", prompt: "work", cwd: c, role: "worker" }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract" }, c);
+  const omittedResult = JSON.parse(omitted.stdout).results[0];
+  assert.equal(omittedResult.status, "launcher_failed");
+  assert.equal(existsSync(path.join(resolveRuntimeRoot(c), "runs", "ad-hoc", omittedResult.jobId, "jobs", omittedResult.jobId, "worker-result.json")), false);
+  const unknown = await runDispatch([{ id: "bad-mode", model: "m", prompt: "work", cwd: c, role: "worker", executionMode: "mystery" }], { OPENCODE_BIN: fakeBin }, c);
+  assert.equal(JSON.parse(unknown.stdout).results[0].status, "launcher_failed");
+  const headless = await runDispatch([{ id: "headless", model: "m", prompt: "work", cwd: c, role: "worker", executionMode: "headless" }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract" }, c);
+  assert.equal(JSON.parse(headless.stdout).results[0].status, "ok");
+  const interactive = await runDispatch([{ id: "interactive", model: "m", prompt: "work", cwd: c, role: "worker", executionMode: "interactive", stewardModel: "haiku" }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract" }, c);
+  assert.equal(JSON.parse(interactive.stdout).results[0].status, "ok");
   cleanup(c);
 });
 
@@ -228,6 +270,7 @@ test("integration: worker write-contract-failed -> contract_failed", async () =>
     prompt: "work",
     cwd: c,
     role: "worker",
+    executionMode: "headless",
   }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract-failed" }, c);
   const out = JSON.parse(stdout);
   assert.equal(out.results[0].status, "contract_failed");
@@ -242,6 +285,7 @@ test("integration: worker write-contract-blocked -> contract_failed", async () =
     prompt: "work",
     cwd: c,
     role: "worker",
+    executionMode: "headless",
   }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract-blocked" }, c);
   const out = JSON.parse(stdout);
   assert.equal(out.results[0].status, "contract_failed");
@@ -256,6 +300,7 @@ test("integration: malformed contract file -> contract_failed", async () => {
     prompt: "work",
     cwd: c,
     role: "worker",
+    executionMode: "headless",
   }], { OPENCODE_BIN: fakeBin, FAKE_OPENCODE_MODE: "write-contract-malformed" }, c);
   const out = JSON.parse(stdout);
   assert.equal(out.results[0].status, "contract_failed");
@@ -305,6 +350,7 @@ test("integration: worker prompt contains absolute WORKER_RESULT_PATH", async ()
     prompt: "base prompt",
     cwd: c,
     role: "worker",
+    executionMode: "headless",
   }], { OPENCODE_BIN: fakeBin, DRETECH_FAKE_PROMPT_PATH: cap }, c);
   const capContent = readFileSync(cap, "utf8");
   assert.ok(capContent.includes("WORKER_RESULT_PATH="));

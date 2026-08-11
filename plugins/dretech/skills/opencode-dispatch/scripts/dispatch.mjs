@@ -25,6 +25,7 @@ import { readFileSync, writeFileSync, renameSync, mkdirSync, createWriteStream, 
 import { promisify } from "node:util";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { resolveWorkerLauncher } from "../../role-workflow/scripts/runtime.mjs";
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_TIMEOUT_MS = 180_000;
@@ -248,8 +249,26 @@ function prepareJob(task) {
   const startedAt = new Date().toISOString();
   const start = Date.now();
   const role = task.role || "other";
+  let launcher = null;
+  let launcherError = null;
+  if (role === "worker") {
+    try {
+      launcher = resolveWorkerLauncher({
+        executionMode: task.executionMode,
+        stewardAvailable: task.stewardAvailable !== false,
+      });
+      if (launcher.mode === "interactive" && !/haiku/i.test(task.stewardModel ?? "haiku")) {
+        throw new Error("interactive worker requires a Haiku steward");
+      }
+      if (task.planManifestSha256 !== undefined && !/^[a-f0-9]{64}$/.test(task.planManifestSha256)) {
+        throw new Error("plan manifest digest is invalid");
+      }
+    } catch (error) {
+      launcherError = error.message;
+    }
+  }
   atomicWriteJson(statePath, {
-    status: "running",
+    status: launcherError ? "launcher_failed" : "running",
     jobId,
     runId: runId || null,
     role,
@@ -258,8 +277,9 @@ function prepareJob(task) {
     startedAt,
     finishedAt: null,
     lastError: null,
+    launcher: launcher?.dispatch ?? null,
   });
-  return {
+  const ctx = {
     task,
     jobId,
     runId: runId || null,
@@ -273,14 +293,45 @@ function prepareJob(task) {
     role,
     startedAt,
     start,
+    launcher,
+    launcherError,
   };
+  if (role === "worker") {
+    writeLatestWorkerRecord(ctx, launcherError ? "failed" : "running", launcherError ? "launcher_failed" : "running", launcherError);
+  }
+  return ctx;
+}
+
+function writeLatestWorkerRecord(ctx, state, status, error = null, finishedAt = null) {
+  const record = {
+    schemaVersion: 1,
+    jobId: ctx.jobId,
+    runId: ctx.runId,
+    state,
+    status,
+    startedAt: ctx.startedAt,
+    finishedAt: finishedAt || (state === "running" ? null : new Date().toISOString()),
+    updatedAt: new Date().toISOString(),
+    ...(ctx.task.planManifestSha256 ? { planManifestSha256: ctx.task.planManifestSha256 } : {}),
+    ...(ctx.launcher ? { launcher: ctx.launcher } : {}),
+    ...(error ? { error } : {}),
+  };
+  atomicWriteJson(path.join(ctx.runDir, "latest-worker.json"), record);
 }
 
 function runJobWithLogs(ctx) {
   const { task, jobId, runId, runDir, jobDir, workerResultPath, statePath, resultPath, stdoutLog, stderrLog, role, startedAt, start } = ctx;
   const model = task.model;
-  const agent = task.agent || null;
+  const agent = ctx.launcher?.dispatch === "steward" ? "worker-steward" : (task.agent || null);
   const cwd = task.cwd || process.cwd();
+  if (ctx.launcherError) {
+    const finishedAt = new Date().toISOString();
+    const resItem = { id: task.id, jobId, runId: runId || null, role, model, agent, status: "launcher_failed", exitCode: null, timedOut: false, durationMs: 0, startedAt, finishedAt, stdout: "", stderr: ctx.launcherError, artifactPath: null };
+    atomicWriteJson(resultPath, resItem);
+    atomicWriteJson(statePath, { status: "failed", jobId, runId: runId || null, role, model, agent, startedAt, finishedAt, lastError: ctx.launcherError, envelopeStatus: "launcher_failed" });
+    if (role === "worker") writeLatestWorkerRecord(ctx, "failed", "launcher_failed", ctx.launcherError, finishedAt);
+    return Promise.resolve(resItem);
+  }
   let prompt = task.prompt || "";
   const cenv = {
     ...process.env,
@@ -397,10 +448,7 @@ function runJobWithLogs(ctx) {
         envelopeStatus,
       };
       atomicWriteJson(statePath, termState);
-      if (role === "worker" && jobStatus === "completed") {
-        const latestPath = path.join(runDir, "latest-worker.json");
-        atomicWriteJson(latestPath, { jobId, finishedAt });
-      }
+      if (role === "worker") writeLatestWorkerRecord(ctx, jobStatus === "completed" ? "completed" : "failed", envelopeStatus, termState.lastError, finishedAt);
       const idx = children.indexOf(child);
       if (idx >= 0) children.splice(idx, 1);
       resolve(resItem);
@@ -443,6 +491,7 @@ function runJobWithLogs(ctx) {
         lastError: err.message,
         envelopeStatus: "cli_error",
       });
+      if (role === "worker") writeLatestWorkerRecord(ctx, "failed", "cli_error", err.message, finishedAt);
       const idx = children.indexOf(child);
       if (idx >= 0) children.splice(idx, 1);
       resolve(resItem);
@@ -500,6 +549,7 @@ async function main() {
           lastError: pf.reason,
           envelopeStatus: "preflight_failed",
         });
+        if (ctx.role === "worker") writeLatestWorkerRecord(ctx, "failed", "preflight_failed", pf.reason, now);
         return resItem;
       });
       process.stdout.write(

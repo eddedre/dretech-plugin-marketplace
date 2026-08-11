@@ -13,6 +13,7 @@ Install with: `/plugin install dretech@dretech-plugin-marketplace`
 Examples:
 
 - `/dretech:opencode-dispatch [task]`
+- `/dretech:worker [reviewed-plan]`
 
 ## dretech-django
 
@@ -23,3 +24,5 @@ Install with: `/plugin install dretech-django@dretech-plugin-marketplace`
 Examples:
 
 - `/dretech-django:audit [target]`
+
+Worker workflows require reviewed plan evidence and independent verification; provider-dependent smoke commands are manual-only.

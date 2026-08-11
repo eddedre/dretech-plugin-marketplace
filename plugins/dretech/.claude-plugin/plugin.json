@@ -1,10 +1,22 @@
 {
   "name": "dretech",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Foreground, structured OpenCode dispatch for Claude Code skills.",
   "author": {
     "name": "EddeDre"
   },
   "license": "MIT",
+  "userConfig": {
+    "peerReviewModel": {
+      "type": "string",
+      "default": "",
+      "description": "Bootstrap OpenCode model for peer review."
+    },
+    "workerModel": {
+      "type": "string",
+      "default": "",
+      "description": "Bootstrap OpenCode model for workers."
+    }
+  },
   "repository": "https://github.com/eddedre/dretech-plugin-marketplace"
 }
