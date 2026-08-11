@@ -175,6 +175,18 @@ test("integration: peer/other creates job dir + envelope status ok", async () =>
   cleanup(c);
 });
 
+test("integration: headless dispatch defaults to the build agent", async () => {
+  const c = tmp();
+  const { stdout } = await runDispatch([{
+    id: "default-agent",
+    model: "m",
+    prompt: "headless work",
+    cwd: c,
+  }], { OPENCODE_BIN: fakeBin }, c);
+  assert.equal(JSON.parse(stdout).results[0].agent, "build");
+  cleanup(c);
+});
+
 test("integration: worker no contract -> contract_failed", async () => {
   const c = tmp();
   const { stdout } = await runDispatch([{

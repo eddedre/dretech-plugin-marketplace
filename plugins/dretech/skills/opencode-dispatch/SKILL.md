@@ -28,7 +28,7 @@ Create a JSON array containing one or more tasks, then invoke the bundled script
 node "${CLAUDE_PLUGIN_ROOT}/skills/opencode-dispatch/scripts/dispatch.mjs" /tmp/dretech-tasks.json
 ```
 
-Never background this command. Read its JSON result and continue only when a task has `status: "ok"`.
+Never background this command. Read its JSON result and continue only when a task has `status: "ok"`. In headless mode, omitted agents default to OpenCode's primary `build` agent. Specify `agent` only to override that default.
 
 ## Safety rules
 

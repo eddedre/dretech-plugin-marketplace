@@ -1,6 +1,6 @@
 {
   "name": "dretech",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Foreground, structured OpenCode dispatch for Claude Code skills.",
   "author": {
     "name": "EddeDre"

@@ -29,6 +29,7 @@ import { resolveWorkerLauncher } from "../../role-workflow/scripts/runtime.mjs";
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_TIMEOUT_MS = 180_000;
+const DEFAULT_HEADLESS_AGENT = "build";
 const OPENCODE_BIN = process.env.OPENCODE_BIN || "opencode";
 const SKIP_PREFLIGHT = process.env.DRETECH_DISPATCH_SKIP_PREFLIGHT === "1";
 const children = [];
@@ -62,6 +63,11 @@ export function classifyStatus({ timedOut, exitCode, stdout }) {
   if (exitCode !== 0) return "cli_error";
   if (isEmptyOutput(stdout)) return "empty";
   return "ok";
+}
+
+export function resolveDispatchAgent(task) {
+  if (typeof task?.agent === "string" && task.agent.trim()) return task.agent;
+  return DEFAULT_HEADLESS_AGENT;
 }
 
 export function mapEnvelopeToJobStatus({ envelopeStatus, role, workerContract }) {
@@ -249,6 +255,7 @@ function prepareJob(task) {
   const startedAt = new Date().toISOString();
   const start = Date.now();
   const role = task.role || "other";
+  const dispatchAgent = resolveDispatchAgent(task);
   let launcher = null;
   let launcherError = null;
   if (role === "worker") {
@@ -273,7 +280,7 @@ function prepareJob(task) {
     runId: runId || null,
     role,
     model: task.model ?? null,
-    agent: task.agent ?? null,
+    agent: dispatchAgent,
     startedAt,
     finishedAt: null,
     lastError: null,
@@ -295,6 +302,7 @@ function prepareJob(task) {
     start,
     launcher,
     launcherError,
+    dispatchAgent,
   };
   if (role === "worker") {
     writeLatestWorkerRecord(ctx, launcherError ? "failed" : "running", launcherError ? "launcher_failed" : "running", launcherError);
@@ -322,7 +330,7 @@ function writeLatestWorkerRecord(ctx, state, status, error = null, finishedAt = 
 function runJobWithLogs(ctx) {
   const { task, jobId, runId, runDir, jobDir, workerResultPath, statePath, resultPath, stdoutLog, stderrLog, role, startedAt, start } = ctx;
   const model = task.model;
-  const agent = ctx.launcher?.dispatch === "steward" ? "worker-steward" : (task.agent || null);
+  const agent = ctx.launcher?.dispatch === "steward" ? "worker-steward" : ctx.dispatchAgent;
   const cwd = task.cwd || process.cwd();
   if (ctx.launcherError) {
     const finishedAt = new Date().toISOString();
@@ -525,7 +533,7 @@ async function main() {
           runId: ctx.runId,
           role: ctx.role,
           model: ctx.task.model ?? null,
-          agent: ctx.task.agent ?? null,
+          agent: ctx.dispatchAgent,
           status: "preflight_failed",
           exitCode: null,
           timedOut: false,
@@ -543,7 +551,7 @@ async function main() {
           runId: ctx.runId,
           role: ctx.role,
           model: ctx.task.model ?? null,
-          agent: ctx.task.agent ?? null,
+          agent: ctx.dispatchAgent,
           startedAt: ctx.startedAt,
           finishedAt: now,
           lastError: pf.reason,
